@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+            background-image: url(https://www.adventure-in-a-box.com/wp-content/uploads/2023/04/Dog-Breed-Game-Printable-Guess-Who.jpg);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .game-container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #eee;
+        }
+        #feedback {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+   
+    <div class="game-container">
+        <img id="game-dog-image" src="" alt="Guess the Breed">
+        <div class="options-container" id="breed-options">
+            </div>
+        <div id="feedback"></div>
+        <button id="next-question-btn">Next Question</button>
+    </div>
+
+    <script>
+        const gameDogImage = document.getElementById('game-dog-image');
+        const breedOptionsContainer = document.getElementById('breed-options');
+        const feedbackElement = document.getElementById('feedback');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        let currentBreed = '';
+        let allBreeds = [];
+
+        // Fetch all breeds
+        async function fetchAllBreeds() {
+            const response = await fetch('https://dog.ceo/api/breeds/list/all');
+            const data = await response.json();
+            if (data.status === 'success') {
+                allBreeds = Object.keys(data.message);
+            }
+        }
+
+        // Get a random image with breed information
+        async function fetchQuestion() {
+            feedbackElement.textContent = '';
+            const response = await fetch('https://dog.ceo/api/breeds/image/random');
+            const data = await response.json();
+            if (data.status === 'success') {
+                const imageUrl = data.message;
+                gameDogImage.src = imageUrl;
+                const parts = imageUrl.split('/');
+                currentBreed = parts[4]; // Extract breed from URL
+
+                // Generate random options including the correct breed
+                const options = generateOptions(currentBreed, allBreeds);
+                displayOptions(options);
+            } else {
+                gameDogImage.src = '';
+                feedbackElement.textContent = 'Error fetching question.';
+            }
+        }
+
+        // Generate multiple choice options
+        function generateOptions(correctBreed, allBreeds) {
+            const options = new Set([correctBreed]);
+            while (options.size < 4 && allBreeds.length > 3) {
+                const randomIndex = Math.floor(Math.random() * allBreeds.length);
+                const randomBreed = allBreeds[randomIndex];
+                options.add(randomBreed);
+            }
+            return Array.from(options).sort(() => Math.random() - 0.5); // Randomize order
+        }
+
+        // Display breed options as buttons
+        function displayOptions(options) {
+            breedOptionsContainer.innerHTML = '';
+            options.forEach(breed => {
+                const button = document.createElement('button');
+                button.textContent = breed.charAt(0).toUpperCase() + breed.slice(1).replace('-', ' ');
+                button.addEventListener('click', () => checkAnswer(breed));
+                breedOptionsContainer.appendChild(button);
+            });
+        }
+
+        // Check if the answer is correct
+        function checkAnswer(selectedBreed) {
+            if (selectedBreed === currentBreed) {
+                feedbackElement.textContent = 'Correct!';
+            } else {
+                feedbackElement.textContent = `Wrong! It's a ${currentBreed.charAt(0).toUpperCase() + currentBreed.slice(1).replace('-', ' ')}.`;
+            }
+        }
+
+        // Event listener for the next question button
+        nextQuestionBtn.addEventListener('click', fetchQuestion);
+
+        // Initialize the game
+        fetchAllBreeds().then(fetchQuestion);
+    </script>
+    <button><p><a href="index.html"color: #228B22; font-weight: bold; text-decoration: none;">Go back Home</a></p></button>
+     
+</body>
+</html>

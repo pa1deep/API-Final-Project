@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Man's best friend - Internet Business Tech API Project</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            background-image: url(https://cdn.vectorstock.com/i/1000v/61/43/dog-breeds-set-large-and-medium-size-vector-20466143.jpg);
+        }
+        h1{
+            color: #3d1d1d;
+            text-align: center;
+        }
+
+        
+        h2 {
+            color: #1c1616;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        button, select {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #eee;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .gallery img {
+            max-width: 150px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <button style="font-size: 1.5em; padding: 15px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        <p style="margin: 0;"><a href="Game.html" style="color: white; font-weight: bold; text-decoration: none;">Play this game after exploring</a></p>
+      </button>
+      <button><h1>Man's best friend- IBT Project</h1></button>
+  
+
+
+    <div class="container">
+        <h2>Random Dog Image</h2>
+        <button id="randomDogBtn">Fetch Random Dog</button>
+        <div id="randomDogContainer"></div>
+    </div>
+
+    <div class="container">
+        <h2>Browse by Breed</h2>
+        <select id="breedSelect">
+            <option value="">Select a Breed</option>
+            </select>
+        <div id="breedImageContainer"></div>
+    </div>
+
+    <div class="container">
+        <h2>Random Dog Gallery</h2>
+        <button id="randomGalleryBtn">Fetch Gallery</button>
+        <div class="gallery" id="randomGalleryContainer"></div>
+    </div>
+
+    <script>
+        const randomDogBtn = document.getElementById('randomDogBtn');
+        const randomDogContainer = document.getElementById('randomDogContainer');
+        const breedSelect = document.getElementById('breedSelect');
+        const breedImageContainer = document.getElementById('breedImageContainer');
+        const randomGalleryBtn = document.getElementById('randomGalleryBtn');
+        const randomGalleryContainer = document.getElementById('randomGalleryContainer');
+
+        // Fetch a random dog image
+        randomDogBtn.addEventListener('click', async () => {
+            const response = await fetch('https://dog.ceo/api/breeds/image/random');
+            const data = await response.json();
+            if (data.status === 'success') {
+                randomDogContainer.innerHTML = `<img src="${data.message}" alt="Random Dog">`;
+            } else {
+                randomDogContainer.innerHTML = '<p>Error fetching dog image.</p>';
+            }
+        });
+
+        // Fetch all breeds and populate the dropdown
+        async function populateBreeds() {
+            const response = await fetch('https://dog.ceo/api/breeds/list/all');
+            const data = await response.json();
+            if (data.status === 'success') {
+                const breeds = Object.keys(data.message).sort();
+                breeds.forEach(breed => {
+                    const option = document.createElement('option');
+                    option.value = breed;
+                    option.textContent = breed.charAt(0).toUpperCase() + breed.slice(1);
+                    breedSelect.appendChild(option);
+                });
+            }
+        }
+
+        populateBreeds();
+
+        // Fetch a random image by breed
+        breedSelect.addEventListener('change', async () => {
+            const selectedBreed = breedSelect.value;
+            if (selectedBreed) {
+                const response = await fetch(`https://dog.ceo/api/breed/${selectedBreed}/images/random`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    breedImageContainer.innerHTML = `<img src="${data.message}" alt="${selectedBreed}">`;
+                } else {
+                    breedImageContainer.innerHTML = '<p>Error fetching image for this breed.</p>';
+                }
+            } else {
+                breedImageContainer.innerHTML = '';
+            }
+        });
+
+        // Fetch a gallery of random dog images
+        randomGalleryBtn.addEventListener('click', async () => {
+            const response = await fetch('https://dog.ceo/api/breeds/image/random/6'); // Fetch 6 random images
+            const data = await response.json();
+            randomGalleryContainer.innerHTML = '';
+            if (data.status === 'success') {
+                data.message.forEach(imageUrl => {
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Random Dog';
+                    randomGalleryContainer.appendChild(img);
+                });
+            } else {
+                randomGalleryContainer.innerHTML = '<p>Error fetching dog gallery.</p>';
+            }
+        });
+        
+    </script>
+  
+    
+</body>
+</html>
