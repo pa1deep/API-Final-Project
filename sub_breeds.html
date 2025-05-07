@@ -103,7 +103,7 @@
                     mainBreedSelect.appendChild(option);
                 });
 
-                // Add an initial option to guide the user
+                
                 const defaultOption = document.createElement('option');
                 defaultOption.value = "";
                 defaultOption.textContent = "Select a Breed with Sub-Breeds";
@@ -130,7 +130,7 @@
                     subBreedItem.classList.add('sub-breed-item');
                     subBreedItem.textContent = subBreed.charAt(0).toUpperCase() + subBreed.slice(1);
 
-                    // Add event listener to show image on click
+                    
                     subBreedItem.addEventListener('click', () => fetchSubBreedImage(mainBreed, subBreed));
                     subBreedContainer.appendChild(subBreedItem);
                 });
