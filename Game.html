@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <style>
         body {
             font-family: sans-serif;
@@ -50,10 +49,28 @@
             font-weight: bold;
             margin-top: 10px;
         }
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .navigation-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .navigation-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-   
     <div class="game-container">
         <img id="game-dog-image" src="" alt="Guess the Breed">
         <div class="options-container" id="breed-options">
@@ -136,7 +153,11 @@
         // Initialize the game
         fetchAllBreeds().then(fetchQuestion);
     </script>
-    <button><p><a href="index.html"color: #228B22; font-weight: bold; text-decoration: none;">Go back Home</a></p></button>
-     
+
+    <div class="navigation-buttons">
+        <a href="index.html" class="navigation-button">Back to Home</a>
+        <a href="sub_breeds.html" class="navigation-button">Explore Sub-breeds</a>
+    </div>
+
 </body>
 </html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Dog Sub-Breeds - Internet Business Tech API Project</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #e9ecef;
+            background-image: url(https://dogsbestlife.com/wp-content/uploads/2024/01/popular-dog-breeds-illustration.jpg);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .sub-breed-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .sub-breed-item {
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .image-container {
+            margin-top: 10px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <button style="font-size: 1.5em; padding: 15px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">
+        <p style="margin: 0;"><a href="index.html" style="color: white; font-weight: bold; text-decoration: none;">Back to Main Page</a></p>
+    </button>
+    <button style="font-size: 1.5em; padding: 15px 30px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">
+        <p style="margin: 0;"><a href="Game.html" style="color: white; font-weight: bold; text-decoration: none;">Guessing Game</a></p>
+    </button>
+    <div class="container">
+        <h1>Explore Sub-Breeds</h1>
+        <label for="mainBreedSelect">Select a Main Breed, then click on the displayed sub-breed to view an image</label>
+        <select id="mainBreedSelect">
+            <option value="">Select a Breed</option>
+        </select>
+        <div id="subBreedDisplay"></div>
+        <div id="subBreedImageContainer" class="image-container"></div>
+    </div>
+
+    <script>
+        const mainBreedSelect = document.getElementById('mainBreedSelect');
+        const subBreedDisplay = document.getElementById('subBreedDisplay');
+        const subBreedImageContainer = document.getElementById('subBreedImageContainer');
+
+        async function populateMainBreeds() {
+            const response = await fetch('https://dog.ceo/api/breeds/list/all');
+            const data = await response.json();
+            if (data.status === 'success') {
+                const breedsWithSubBreeds = Object.keys(data.message)
+                    .filter(breed => Array.isArray(data.message[breed]) && data.message[breed].length > 0)
+                    .sort();
+
+                breedsWithSubBreeds.forEach(breed => {
+                    const option = document.createElement('option');
+                    option.value = breed;
+                    option.textContent = breed.charAt(0).toUpperCase() + breed.slice(1);
+                    mainBreedSelect.appendChild(option);
+                });
+
+                // Add an initial option to guide the user
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = "Select a Breed with Sub-Breeds";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                mainBreedSelect.insertBefore(defaultOption, mainBreedSelect.firstChild);
+
+            }
+        }
+
+        async function displaySubBreeds(mainBreed) {
+            const response = await fetch(`https://dog.ceo/api/breed/${mainBreed}/list`);
+            const data = await response.json();
+            subBreedDisplay.innerHTML = '';
+            subBreedImageContainer.innerHTML = '';
+
+            if (data.status === 'success' && data.message.length > 0) {
+                const subBreeds = data.message;
+                const subBreedContainer = document.createElement('div');
+                subBreedContainer.classList.add('sub-breed-container');
+
+                subBreeds.forEach(subBreed => {
+                    const subBreedItem = document.createElement('div');
+                    subBreedItem.classList.add('sub-breed-item');
+                    subBreedItem.textContent = subBreed.charAt(0).toUpperCase() + subBreed.slice(1);
+
+                    // Add event listener to show image on click
+                    subBreedItem.addEventListener('click', () => fetchSubBreedImage(mainBreed, subBreed));
+                    subBreedContainer.appendChild(subBreedItem);
+                });
+                subBreedDisplay.appendChild(subBreedContainer);
+            } else if (data.status === 'success') {
+                subBreedDisplay.innerHTML = `<p>No sub-breeds found for ${mainBreed.charAt(0).toUpperCase() + mainBreed.slice(1)}.</p>`;
+            } else {
+                subBreedDisplay.innerHTML = '<p>Error fetching sub-breeds.</p>';
+            }
+        }
+
+        async function fetchSubBreedImage(mainBreed, subBreed) {
+            const response = await fetch(`https://dog.ceo/api/breed/${mainBreed}/${subBreed}/images/random`);
+            const data = await response.json();
+            if (data.status === 'success') {
+                subBreedImageContainer.innerHTML = `<h2>${mainBreed.charAt(0).toUpperCase() + mainBreed.slice(1)} - ${subBreed.charAt(0).toUpperCase() + subBreed.slice(1)}</h2><img src="${data.message}" alt="${mainBreed} ${subBreed}">`;
+            } else {
+                subBreedImageContainer.innerHTML = '<p>Error fetching image for this sub-breed.</p>';
+            }
+        }
+
+        mainBreedSelect.addEventListener('change', () => {
+            const selectedBreed = mainBreedSelect.value;
+            if (selectedBreed) {
+                displaySubBreeds(selectedBreed);
+            } else {
+                subBreedDisplay.innerHTML = '';
+                subBreedImageContainer.innerHTML = '';
+            }
+        });
+
+        populateMainBreeds();
+    </script>
+</body>
+</html>
